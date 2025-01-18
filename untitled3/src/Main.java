@@ -6,81 +6,82 @@ import java.sql.SQLException;
 
 public class Main {
     public static void main(String[] args) {
+        IStudentDAO studentDAO = new StudentDAOImpl();
         Scanner scanner = new Scanner(System.in);
-        quanLySinhVien(scanner);
 
-        try {
-            Connection conn = DataConection.getConnection();
-            if (conn != null) {
-                System.out.println("Kết nối thành công!");
-                conn.close();
-            }
-        } catch (SQLException e) {
-            System.err.println("Kết nối thất bại: " + e.getMessage());
-        }
-    }
+        int choice;
+        do {
+            System.out.println("\nStudent Management:");
+            System.out.println("1. Add student");
+            System.out.println("2. Update student");
+            System.out.println("3. Delete student");
+            System.out.println("4. Display all students");
+            System.out.println("5. Display students with total credits");
+            System.out.println("6. Display student grades");
+            System.out.println("7. Exit");
+            System.out.print("Enter your choice: ");
+            choice = scanner.nextInt();
+            scanner.nextLine();
 
-        private static void quanLySinhVien(Scanner scanner) {
-            int choice;
-            do {
-                System.out.println("\nQuản lý danh sách sinh viên:");
-                System.out.println("1. Thêm sinh viên");
-                System.out.println("2. Sửa sinh viên");
-                System.out.println("3. Xóa sinh viên");
-                System.out.println("4. Hiển thị danh sách sinh viên");
-                System.out.println("5. Quay lại");
-                System.out.print("Lựa chọn của bạn: ");
-                choice = scanner.nextInt();
-                scanner.nextLine();
-
-                switch (choice) {
-                    case 1:
-                        System.out.print("Nhập mã số: ");
-                        int maSo = scanner.nextInt();
-                        scanner.nextLine();
-                        System.out.print("Nhập họ tên: ");
-                        String hoTen = scanner.nextLine();
-                        System.out.print("Nhập ngày sinh (yyyy-MM-dd): ");
-                        String ngaySinh = scanner.nextLine();
-                        System.out.print("Nhập giới tính (Nam/Nữ): ");
-                        String gioiTinh = scanner.nextLine();
-                        System.out.print("Nhập lớp: ");
-                        String lop = scanner.nextLine();
-                        SinhVienDAO.themSinhVien(new SinhVien(maSo, hoTen, LocalDate.parse(ngaySinh), gioiTinh, lop));
-                        break;
-                    case 2:
-                        System.out.print("Nhập mã số sinh viên cần sửa: ");
-                        maSo = scanner.nextInt();
-                        scanner.nextLine();
-                        System.out.print("Nhập họ tên mới: ");
-                        hoTen = scanner.nextLine();
-                        System.out.print("Nhập ngày sinh mới (yyyy-MM-dd): ");
-                        ngaySinh = scanner.nextLine();
-                        System.out.print("Nhập giới tính mới (Nam/Nữ): ");
-                        gioiTinh = scanner.nextLine();
-                        System.out.print("Nhập lớp mới: ");
-                        lop = scanner.nextLine();
-                        SinhVienDAO.suaSinhVien(new SinhVien(maSo, hoTen, LocalDate.parse(ngaySinh), gioiTinh, lop));
-                        break;
-                    case 3:
-                        System.out.print("Nhập mã số sinh viên cần xóa: ");
-                        maSo = scanner.nextInt();
-                        SinhVienDAO.xoaSinhVien(maSo);
-                        break;
-                    case 4:
-                        System.out.println("Danh sách sinh viên:");
-                        List<SinhVien> danhSach = SinhVienDAO.layDanhSachSinhVien();
-                        for (SinhVien sv : danhSach) {
-                            System.out.println(sv);
-                        }
-                        break;
-                    case 5:
-                        return;
-                    default:
-                        System.out.println("Lựa chọn không hợp lệ!");
+            switch (choice) {
+                case 1 -> addStudent(studentDAO, scanner);
+                case 2 -> updateStudent(studentDAO, scanner);
+                case 3 -> deleteStudent(studentDAO, scanner);
+                case 4 -> {
+                    List<Student> students = studentDAO.getAllStudents();
+                    students.forEach(System.out::println);
                 }
-            } while (choice != 5);
-        }
+                case 5 -> {
+                    List<StudentWithTotalCredits> students = studentDAO.getStudentsWithTotalCredits();
+                    students.forEach(System.out::println);
+                }
+                case 6 -> studentDAO.displayStudentGrades();
+                case 7 -> System.out.println("Exiting...");
+                default -> System.out.println("Invalid choice! Try again.");
+            }
+        } while (choice != 7);
     }
+
+    private static void addStudent(IStudentDAO studentDAO, Scanner scanner) {
+        System.out.print("Enter ID: ");
+        int id = scanner.nextInt();
+        scanner.nextLine();
+        System.out.print("Enter name: ");
+        String name = scanner.nextLine();
+        System.out.print("Enter date of birth (yyyy-MM-dd): ");
+        String dob = scanner.nextLine();
+        System.out.print("Enter gender: ");
+        String gender = scanner.nextLine();
+        System.out.print("Enter class name: ");
+        String className = scanner.nextLine();
+
+        Student student = new Student(id, name, LocalDate.parse(dob), gender, className);
+        studentDAO.addStudent(student);
+    }
+
+    private static void updateStudent(IStudentDAO studentDAO, Scanner scanner) {
+        System.out.print("Enter ID of student to update: ");
+        int id = scanner.nextInt();
+        scanner.nextLine();
+        System.out.print("Enter new name: ");
+        String name = scanner.nextLine();
+        System.out.print("Enter new date of birth (yyyy-MM-dd): ");
+        String dob = scanner.nextLine();
+        System.out.print("Enter new gender: ");
+        String gender = scanner.nextLine();
+        System.out.print("Enter new class name: ");
+        String className = scanner.nextLine();
+
+        Student student = new Student(id, name, LocalDate.parse(dob), gender, className);
+        studentDAO.updateStudent(student);
+    }
+
+    private static void deleteStudent(IStudentDAO studentDAO, Scanner scanner) {
+        System.out.print("Enter ID of student to delete: ");
+        int id = scanner.nextInt();
+        studentDAO.deleteStudent(id);
+    }
+    }
+
 
 
